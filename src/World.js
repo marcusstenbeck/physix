@@ -24,6 +24,14 @@ define([
 			return;
 		}
 
+		// Make sure timestep never exceeds 10 ms
+		for(var dt = 10, timeleft = timestep; timeleft > 0; timeleft -= dt) {
+			var step = timeleft < dt ? timeleft : dt;
+			this._updateFixedTimeStep(step);
+		}
+	};
+
+	World.prototype._updateFixedTimeStep = function(timestep) {
 		/**
 		 *  Update positions, velocities, accelerations
 		 */
