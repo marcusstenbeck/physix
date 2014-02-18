@@ -96,22 +96,34 @@ define([
 
 	World.prototype._detectCollisions = function(bodies) {
 		var collisions = [];
-		var bodyA;
-		var bodyB;
 
 		for(var i = 0; i < bodies.length; i++) {
+			var ba = bodies[i].getBounds();
+
 			for(var j = i+1; j < bodies.length; j++) {
-				bodyA = bodies[i];
-				bodyB = bodies[j];
+				var bb = bodies[j].getBounds();
 
-				var BtoA = new Vec2(bodyA.pos.x - bodyB.pos.x, bodyA.pos.y - bodyB.pos.y);
+				var l1 = ba.left;
+				var r1 = ba.right;
+				var t1 = ba.top;
+				var b1 = ba.bottom;
 
-				// TODO: get this hardcoded stuff out of here
-				if(BtoA.getLength() < 10) collisions.push({
-					bodyA: bodyA,
-					bodyB: bodyB,
-					vector: BtoA
-				});
+				var l2 = bb.left;
+				var r2 = bb.right;
+				var t2 = bb.top;
+				var b2 = bb.bottom;
+
+				if(l1 > r2 || r1 < l2 || t1 < b2 || b1 > t2) continue;
+
+				// If we've come here, there has to be a collision
+				// TODO: Don't stop all shizz!
+				bodies[i].vel.x = 0;
+				bodies[i].vel.y = 0;
+				bodies[j].vel.x = 0;
+				bodies[j].vel.y = 0;
+
+				collisions.push(bodies[i]);
+				collisions.push(bodies[j]);
 			}
 		}
 
@@ -121,11 +133,9 @@ define([
 	World.prototype._resolveCollisions = function(collisions) {
 		if(collisions.length > 0) {
 			var col;
+
 			while(col = collisions.shift()) {
-				console.log(col);
-				var zz = 500;
-				col.bodyB.applyForce(new Vec2(col.vector.x/zz, col.vector.y/zz));
-				col.bodyA.applyForce(new Vec2(-col.vector.x/zz, -col.vector.y/zz));
+				// Resolve collision
 			}
 		}
 	};
