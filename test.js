@@ -38,9 +38,11 @@ require([
 		w.update(dt);
 		var bodies = w.bodies;
 		for(var i = 0; i < bodies.length; i++) {
+			var x = bodies[i].pos.x;
+			var y = canvas.height - bodies[i].pos.y;
 			ctx.beginPath();
 			ctx.strokeStyle = "magenta";
-			ctx.arc(bodies[i].pos.x, canvas.height - bodies[i].pos.y, 10, 0, 2*Math.PI);
+			ctx.arc(x, y, 10, 0, 2*Math.PI);
 			ctx.stroke();
 			ctx.restore();
 		}
