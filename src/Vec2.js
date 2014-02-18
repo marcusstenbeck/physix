@@ -6,8 +6,12 @@ define([
 		this.y = isNaN(y) ? 0 : y;
 	}
 
+	Vec2.prototype.getLength = function() {
+		return Math.sqrt(this.x*this.x + this.y*this.y);
+	};
+
 	Vec2.prototype.normalize = function() {
-		var mag = Math.sqrt(this.x*this.x + this.y*this.y);
+		var mag = this.getLength();
 		this.x /= mag;
 		this.y /= mag;
 	};
