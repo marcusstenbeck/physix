@@ -1,7 +1,9 @@
 define([
-	'./Vec2'
+	'./Vec2',
+	'./Body'
 ], function(
-	Vec2
+	Vec2,
+	Body
 ) {
 
 	/**
@@ -54,6 +56,7 @@ define([
 		for(var i = 0; i < this.bodies.length; i++) {
 			body = this.bodies[i];
 
+			/* TODO: Remove this?
 			for(var j = 0; j < this.forceFields.length; j++) {
 				var ff = this.forceFields[j];
 
@@ -63,10 +66,19 @@ define([
 				body.accumulatedForce.x += dir.x * ff.magnitude / body.mass;
 				body.accumulatedForce.y += dir.y * ff.magnitude / body.mass;
 			}
+			*/
 
 			// Calculate acceleration
-			body.acc.x = (this.gravity.x + body.accumulatedForce.x) / body.mass;
-			body.acc.y = (this.gravity.y + body.accumulatedForce.y) / body.mass;
+			switch(body.type) {
+				case Body.DYNAMIC:
+					body.acc.x = (this.gravity.x + body.accumulatedForce.x) / body.mass;
+					body.acc.y = (this.gravity.y + body.accumulatedForce.y) / body.mass;
+					break;
+				case Body.KINEMATIC:
+					body.acc.x = body.accumulatedForce.x / body.mass;
+					body.acc.y = body.accumulatedForce.y / body.mass;
+					break;
+			}
 
 			// Zero out accumulated force
 			body.accumulatedForce.x = 0;
