@@ -38,21 +38,10 @@ require([
 		w.update(dt);
 		var bodies = w.bodies;
 		for(var i = 0; i < bodies.length; i++) {
-			var x = bodies[i].pos.x;
-			var y = canvas.height - bodies[i].pos.y;
+			var bound = bodies[i].getBounds();
 			ctx.beginPath();
 			ctx.strokeStyle = "magenta";
-			ctx.arc(x, y, 10, 0, 2*Math.PI);
-			ctx.stroke();
-			ctx.restore();
-		}
-		
-		var ff = w.forceFields;
-		for(var i = 0; i < ff.length; i++) {
-			ctx.beginPath();
-			ctx.strokeStyle = "red";
-			ctx.arc(ff[i].pos.x, canvas.height - ff[i].pos.y, 10, 0, 2*Math.PI);
-			ctx.stroke();
+			ctx.strokeRect(bound.left, canvas.height - bound.top, bodies[i].shape.width, bodies[i].shape.height);
 			ctx.restore();
 		}
 
@@ -64,23 +53,22 @@ require([
 		window.addEventListener('resize', resize);
 
 		w = new World();
-		//w.gravity.y = -0.001;
-		w.forceFields.push({
-			pos: new Vec2(canvas.width/2, canvas.height/2, 10),
-			magnitude: 0.001
-		});
+		w.gravity.y = -0.001;
 
 		var b;
 		for(var i = 0; i < 3; i++) {
 			b = new Body();
-			b.pos.x = 0.4*canvas.width + 0.2*i*canvas.width/2;
-			b.pos.y = 0.45*canvas.height;
-			w.bodies.push(b);	
+			b.pos.x = 0.5*canvas.width + i*2;
+			b.pos.y = 0.45*canvas.height + 0.2*i*canvas.height/2;
+			w.bodies.push(b);
 		}
 
-		w.bodies[0].vel.x = 0.3;
-		w.bodies[1].vel.x = 0.5;
-		w.bodies[2].vel.x = 0.5;
+		b = new Body({
+			type: Body.KINEMATIC
+		});
+		b.pos.x = 0.5*canvas.width;
+		b.pos.y = 0.4*canvas.height;
+		w.bodies.push(b);
 
 		update();
 	}
