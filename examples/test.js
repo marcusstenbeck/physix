@@ -21,6 +21,7 @@ require([
 ) {
 	var w;
 
+	// TODO: Move this someplace better
 	window.requestAnimFrame =
 	    window.requestAnimationFrame ||
 	    window.webkitRequestAnimationFrame ||
