@@ -60,11 +60,11 @@ define([
 			for(var j = 0; j < this.forceFields.length; j++) {
 				var ff = this.forceFields[j];
 
-				var dir = new Vec2(ff.pos.x - body.pos.x, ff.pos.y - body.pos.y);
-				dir.normalize();
+				var dist = new Vec2(ff.pos.x - body.pos.x, ff.pos.y - body.pos.y);
+				dist.normalize();
 
-				body.accumulatedForce.x += dir.x * ff.magnitude / body.mass;
-				body.accumulatedForce.y += dir.y * ff.magnitude / body.mass;
+				body.accumulatedForce.x += dist.x * ff.magnitude / body.mass;
+				body.accumulatedForce.y += dist.y * ff.magnitude / body.mass;
 			}
 			*/
 
@@ -124,84 +124,85 @@ define([
 	};
 
 	World.prototype._resolveCollisions = function(collisions) {
-		if(collisions.length > 0) {
-			var col;
+		if(collisions.length == 0) return;
+		
+		var col;
 
-			while(col = collisions.shift()) {
-				// Resolve collision
+		while(col = collisions.shift()) {
+			// Resolve collision
+			
+			if(col[0].type == Body.DYNAMIC) {
 				
-				if(col[0].type == Body.DYNAMIC) {
-					
-					// absolute direction and magnitude
-					var dir = new Vec2(Math.abs(col[0].pos.x - col[1].pos.x), Math.abs(col[0].pos.y - col[1].pos.y));
+				// absolute distance
+				var dist = new Vec2(Math.abs(col[0].pos.x - col[1].pos.x), Math.abs(col[0].pos.y - col[1].pos.y));
 
-					switch(col[1].type) {
-						case Body.DYNAMIC:
-							// dynamic - dynamic
-							if(dir.x > dir.y) {
+				switch(col[1].type) {
+					case Body.DYNAMIC:
+						// dynamic - dynamic
+						if(dist.x > dist.y) {
 
-								/**
-								 * Move along horizontal axis (the boxes are closest horizontally)
-								 */
+							/**
+							 * Move along horizontal axis (the boxes are closest horizontally)
+							 */
 /*								
-								// find out sign
-								var sign = (col[0].pos.x - col[0].pos.x) < 0 ? -1 : 1;
-								
-								// calc relative position to move
-								var moveDiff = 0.5 * dir.x * sign / 2;
+							// find out sign
+							var sign = (col[0].pos.x - col[0].pos.x) < 0 ? -1 : 1;
+							
+							// calc relative position to move
+							var moveDiff = 0.5 * dist.x * sign / 2;
 
-								// move the bodies
-								col[0].pos.x += moveDiff;
-								col[1].pos.x -= moveDiff;
+							// move the bodies
+							col[0].pos.x += moveDiff;
+							col[1].pos.x -= moveDiff;
 
-								// reverse their velocities
-								col[0].vel.x *= -1;
-								col[1].vel.x *= -1;
+							// reverse their velocities
+							col[0].vel.x *= -1;
+							col[1].vel.x *= -1;
 
-*/							} else if(dir.x < dir.y) {
-								/**
-								 *  Move along vertical axis (the boxes are closest vertically)
-								 */
-								
-								// find out sign
-								var sign = (col[0].pos.y - col[0].pos.y) < 0 ? -1 : 1;
-								
-								// calc relative position to move
-								var moveDiff = 0.5*sign*((col[0].shape.height + col[1].shape.height) / 2 - dir.y);
+*/							} else if(dist.x < dist.y) {
+							/**
+							 *  Move along vertical axis (the boxes are closest vertically)
+							 */
+							
+							// find out sign
+							var sign = (col[0].pos.y - col[0].pos.y) < 0 ? -1 : 1;
+							
+							// calc relative position to move
+							var moveDiff = sign*(0.5*(col[0].shape.height + col[1].shape.height) - dist.y + 0.000000001);
 
-								// move the bodies
-								col[0].pos.y += moveDiff;
-								col[1].pos.y -= moveDiff;
+							// move the bodies
+							col[0].pos.y += moveDiff;
+							col[1].pos.y -= moveDiff;
 
-								// reverse their velocities
-								col[0].vel.y *= -1;
-								col[1].vel.y *= -1;
-							} else {
-								// corner collision
-							}
-							break;
+							// reverse their velocities
+							col[0].vel.y *= -.98;
+							col[1].vel.y *= -.98;
+						} else {
+							// corner collision
+						}
+						break;
 
-						case Body.KINEMATIC:
-							// dynamic - kinematic
-							col[0].vel.y = 0;
-							col[0].applyForce(new Vec2(0, 0.001));
-							break;
-					}
-				} else if(col[0].type == Body.KINEMATIC) {
-					switch(col[1].type) {
-						case Body.DYNAMIC:
-							// kinematic - dynamic
-							col[1].vel.y = 0;
-							col[1].applyForce(new Vec2(0, 0.001));
-							break;
+					case Body.KINEMATIC:
+						// dynamic - kinematic
+						col[0].pos.y += 0.5*(col[0].shape.height + col[1].shape.height) - dist.y + 0.000000001;
+						col[0].vel.y *= -.98;
+						break;
+				}
+			} else if(col[0].type == Body.KINEMATIC) {
+				switch(col[1].type) {
+					case Body.DYNAMIC:
+						// kinematic - dynamic
+						col[1].pos.y += 0.5*(col[0].shape.height + col[1].shape.height) - dist.y + 0.000000001;
+						col[1].vel.y *= -.98;
+						break;
 
-						case Body.KINEMATIC:
-							// kinematic - kinematic
-							break;
-					}
+					case Body.KINEMATIC:
+						// kinematic - kinematic
+						break;
 				}
 			}
 		}
+		return this._resolveCollisions(this._detectCollisions(this.bodies));
 	};
 
 	return World;
