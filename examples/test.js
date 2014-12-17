@@ -1,7 +1,19 @@
+requirejs.config({
+    //By default load any module IDs from ../js
+    baseUrl: '../js',
+    //except, if the module ID starts with "app",
+    //load it from the ./examples directory. paths
+    //config is relative to the baseUrl, and
+    //never includes a ".js" extension since
+    //the paths config could be for a directory.
+    paths: {
+        examples: '../examples'
+    }
+});
 require([
-	'src/World',
-	'src/Body',
-	'src/Vec2'
+	'World',
+	'Body',
+	'Vec2'
 ], function(
 	World,
 	Body,
@@ -58,7 +70,7 @@ require([
 		var b;
 		for(var i = 0; i < 3; i++) {
 			b = new Body();
-			b.pos.x = 0.5*canvas.width + i*2;
+			b.pos.x = 0.5*canvas.width;// + i*2;
 			b.pos.y = 0.45*canvas.height + 0.2*i*canvas.height/2;
 			w.bodies.push(b);
 		}

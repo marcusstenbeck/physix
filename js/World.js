@@ -116,14 +116,7 @@ define([
 				if(l1 > r2 || r1 < l2 || t1 < b2 || b1 > t2) continue;
 
 				// If we've come here, there has to be a collision
-				// TODO: Don't stop all shizz!
-				bodies[i].vel.x = 0;
-				bodies[i].vel.y = 0;
-				bodies[j].vel.x = 0;
-				bodies[j].vel.y = 0;
-
-				collisions.push(bodies[i]);
-				collisions.push(bodies[j]);
+				collisions.push([bodies[i], bodies[j]]);
 			}
 		}
 
@@ -136,6 +129,77 @@ define([
 
 			while(col = collisions.shift()) {
 				// Resolve collision
+				
+				if(col[0].type == Body.DYNAMIC) {
+					
+					// absolute direction and magnitude
+					var dir = new Vec2(Math.abs(col[0].pos.x - col[1].pos.x), Math.abs(col[0].pos.y - col[1].pos.y));
+
+					switch(col[1].type) {
+						case Body.DYNAMIC:
+							// dynamic - dynamic
+							if(dir.x > dir.y) {
+
+								/**
+								 * Move along horizontal axis (the boxes are closest horizontally)
+								 */
+/*								
+								// find out sign
+								var sign = (col[0].pos.x - col[0].pos.x) < 0 ? -1 : 1;
+								
+								// calc relative position to move
+								var moveDiff = 0.5 * dir.x * sign / 2;
+
+								// move the bodies
+								col[0].pos.x += moveDiff;
+								col[1].pos.x -= moveDiff;
+
+								// reverse their velocities
+								col[0].vel.x *= -1;
+								col[1].vel.x *= -1;
+
+*/							} else if(dir.x < dir.y) {
+								/**
+								 *  Move along vertical axis (the boxes are closest vertically)
+								 */
+								
+								// find out sign
+								var sign = (col[0].pos.y - col[0].pos.y) < 0 ? -1 : 1;
+								
+								// calc relative position to move
+								var moveDiff = 0.5*sign*((col[0].shape.height + col[1].shape.height) / 2 - dir.y);
+
+								// move the bodies
+								col[0].pos.y += moveDiff;
+								col[1].pos.y -= moveDiff;
+
+								// reverse their velocities
+								col[0].vel.y *= -1;
+								col[1].vel.y *= -1;
+							} else {
+								// corner collision
+							}
+							break;
+
+						case Body.KINEMATIC:
+							// dynamic - kinematic
+							col[0].vel.y = 0;
+							col[0].applyForce(new Vec2(0, 0.001));
+							break;
+					}
+				} else if(col[0].type == Body.KINEMATIC) {
+					switch(col[1].type) {
+						case Body.DYNAMIC:
+							// kinematic - dynamic
+							col[1].vel.y = 0;
+							col[1].applyForce(new Vec2(0, 0.001));
+							break;
+
+						case Body.KINEMATIC:
+							// kinematic - kinematic
+							break;
+					}
+				}
 			}
 		}
 	};
