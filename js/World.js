@@ -199,10 +199,10 @@ define([
 		dynamicBody2.pos.y -= vecSolve.y;
 
 		// Reverse velocity and a some artificial energy loss
-		dynamicBody1.vel.x *= -.98;
-		dynamicBody1.vel.y *= -.98;
-		dynamicBody2.vel.x *= -.98;
-		dynamicBody2.vel.y *= -.98;
+		if(vectorAtoB.x != 0) dynamicBody1.vel.x *= -.98;
+		if(vectorAtoB.y != 0) dynamicBody1.vel.y *= -.98;
+		if(vectorAtoB.x != 0) dynamicBody2.vel.x *= -.98;
+		if(vectorAtoB.y != 0) dynamicBody2.vel.y *= -.98;
 	};
 
 	World.prototype._resolveDynamicKinematic = function(dynamicBody, kinematicBody, vectorAtoB) {
@@ -219,8 +219,8 @@ define([
 		dynamicBody.pos.y += vecSolve.y;
 
 		// Reverse velocity and a some artificial energy loss
-		dynamicBody.vel.x *= -.98;
-		dynamicBody.vel.y *= -.98;
+		if(vectorAtoB.x != 0) dynamicBody.vel.x *= -.98;
+		if(vectorAtoB.y != 0) dynamicBody.vel.y *= -.98;
 	};
 
 	return World;
