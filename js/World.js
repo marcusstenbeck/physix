@@ -132,77 +132,90 @@ define([
 			// Resolve collision
 			
 			if(col[0].type == Body.DYNAMIC) {
-				
-				// absolute distance
-				var dist = new Vec2(Math.abs(col[0].pos.x - col[1].pos.x), Math.abs(col[0].pos.y - col[1].pos.y));
 
 				switch(col[1].type) {
 					case Body.DYNAMIC:
 						// dynamic - dynamic
-						if(dist.x > dist.y) {
-
-							/**
-							 * Move along horizontal axis (the boxes are closest horizontally)
-							 */
-/*								
-							// find out sign
-							var sign = (col[0].pos.x - col[0].pos.x) < 0 ? -1 : 1;
-							
-							// calc relative position to move
-							var moveDiff = 0.5 * dist.x * sign / 2;
-
-							// move the bodies
-							col[0].pos.x += moveDiff;
-							col[1].pos.x -= moveDiff;
-
-							// reverse their velocities
-							col[0].vel.x *= -1;
-							col[1].vel.x *= -1;
-
-*/							} else if(dist.x < dist.y) {
-							/**
-							 *  Move along vertical axis (the boxes are closest vertically)
-							 */
-							
-							// find out sign
-							var sign = (col[0].pos.y - col[0].pos.y) < 0 ? -1 : 1;
-							
-							// calc relative position to move
-							var moveDiff = sign*(0.5*(col[0].shape.height + col[1].shape.height) - dist.y + 0.000000001);
-
-							// move the bodies
-							col[0].pos.y += moveDiff;
-							col[1].pos.y -= moveDiff;
-
-							// reverse their velocities
-							col[0].vel.y *= -.98;
-							col[1].vel.y *= -.98;
-						} else {
-							// corner collision
-						}
+						this._resolveDynamicDynamic(col[0], col[1]);
 						break;
 
 					case Body.KINEMATIC:
 						// dynamic - kinematic
-						col[0].pos.y += 0.5*(col[0].shape.height + col[1].shape.height) - dist.y + 0.000000001;
-						col[0].vel.y *= -.98;
+						this._resolveDynamicKinematic(col[0], col[1]);  // col[0]: dynamic, col[1]: kinematic
 						break;
 				}
 			} else if(col[0].type == Body.KINEMATIC) {
 				switch(col[1].type) {
 					case Body.DYNAMIC:
 						// kinematic - dynamic
-						col[1].pos.y += 0.5*(col[0].shape.height + col[1].shape.height) - dist.y + 0.000000001;
-						col[1].vel.y *= -.98;
+						this._resolveDynamicKinematic(col[1], col[0]);  // col[0]: kinematic, col[1]: dynamic
 						break;
 
 					case Body.KINEMATIC:
 						// kinematic - kinematic
+						console.log('lol, kinematic kinematic');
 						break;
 				}
 			}
 		}
 		return this._resolveCollisions(this._detectCollisions(this.bodies));
+	};
+
+	World.prototype._resolveDynamicDynamic = function(dynamicBody1, dynamicBody2) {
+		// absolute distance
+		var dist = new Vec2(Math.abs(dynamicBody1.pos.x - dynamicBody2.pos.x), Math.abs(dynamicBody1.pos.y - dynamicBody2.pos.y));
+
+		if(dist.x > dist.y) {
+			/**
+			 * Moving along horizontal axis (the boxes are closest horizontally)
+			 */
+/*								
+			// find out sign
+			var sign = (dynamicBody1.pos.x - dynamicBody1.pos.x) < 0 ? -1 : 1;
+			
+			// calc relative position to move
+			var moveDiff = 0.5 * dist.x * sign / 2;
+
+			// move the bodies
+			dynamicBody1.pos.x += moveDiff;
+			dynamicBody2.pos.x -= moveDiff;
+
+			// reverse their velocities
+			dynamicBody1.vel.x *= -1;
+			dynamicBody2.vel.x *= -1;
+*/		
+		} else if(dist.x < dist.y) {
+			/**
+			 *  Moving along vertical axis (the boxes are closest vertically)
+			 */
+			
+			// find out sign
+			var sign = (dynamicBody1.pos.y - dynamicBody2.pos.y) < 0 ? -1 : 1;
+
+			// calc relative position to move
+			var moveDiff = sign*(0.5*(dynamicBody1.shape.height + dynamicBody2.shape.height) - dist.y + 0.000000001);
+
+			// move the bodies
+			dynamicBody1.pos.y += moveDiff;
+			dynamicBody2.pos.y -= moveDiff;
+
+			// reverse their velocities
+			dynamicBody1.vel.y *= -.98;
+			dynamicBody2.vel.y *= -.98;
+		} else {
+			// corner collision
+		}
+	};
+
+	World.prototype._resolveDynamicKinematic = function(dynamicBody, kinematicBody) {
+		// absolute distance
+		var dist = new Vec2(Math.abs(dynamicBody.pos.x - kinematicBody.pos.x), Math.abs(dynamicBody.pos.y - kinematicBody.pos.y));
+
+		// find out sign
+		var sign = (dynamicBody.pos.y - kinematicBody.pos.y) < 0 ? -1 : 1;
+		
+		dynamicBody.pos.y += sign*(0.5*(kinematicBody.shape.height + dynamicBody.shape.height) - dist.y + 0.000000001);
+		dynamicBody.vel.y *= -.98;
 	};
 
 	return World;
