@@ -95,23 +95,27 @@ define([
 	};
 
 	World.prototype._detectCollisions = function(bodies) {
+		/**
+		 *  AABB collision detection
+		 */
 		var collisions = [];
 
-		for(var i = 0; i < bodies.length; i++) {
-			var ba = bodies[i].getBounds();
+		var i, j, ba, bb, l1, r1, t1, b1, l2, r2, t2, b2, vecAtoB, collisionVector;
+		for(i = 0; i < bodies.length; i++) {
+			ba = bodies[i].getBounds();
 
-			for(var j = i+1; j < bodies.length; j++) {
-				var bb = bodies[j].getBounds();
+			for(j = i+1; j < bodies.length; j++) {
+				bb = bodies[j].getBounds();
 
-				var l1 = ba.left;
-				var r1 = ba.right;
-				var t1 = ba.top;
-				var b1 = ba.bottom;
+				l1 = ba.left;
+				r1 = ba.right;
+				t1 = ba.top;
+				b1 = ba.bottom;
 
-				var l2 = bb.left;
-				var r2 = bb.right;
-				var t2 = bb.top;
-				var b2 = bb.bottom;
+				l2 = bb.left;
+				r2 = bb.right;
+				t2 = bb.top;
+				b2 = bb.bottom;
 
 				if(l1 > r2 || r1 < l2 || t1 < b2 || b1 > t2) continue;
 
