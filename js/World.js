@@ -152,19 +152,26 @@ define([
 				switch(col[1].type) {
 					case Body.DYNAMIC:
 						// dynamic - dynamic
-						this._resolveDynamicDynamic(col[0], col[1]);
+						this._resolveDynamicDynamic(col[0], col[1], col[2]);  // col[2]: vectorAtoB
 						break;
 
 					case Body.KINEMATIC:
 						// dynamic - kinematic
-						this._resolveDynamicKinematic(col[0], col[1]);  // col[0]: dynamic, col[1]: kinematic
+						this._resolveDynamicKinematic(col[0], col[1], col[2]);  // col[0]: dynamic, col[1]: kinematic, col[2]: vectorAtoB
 						break;
 				}
 			} else if(col[0].type == Body.KINEMATIC) {
 				switch(col[1].type) {
 					case Body.DYNAMIC:
 						// kinematic - dynamic
-						this._resolveDynamicKinematic(col[1], col[0]);  // col[0]: kinematic, col[1]: dynamic
+
+						// Right now the collisionVector is pointing in the
+						// opposite direction of what will be expected later.
+						// Reverse the direction of the vector
+						col[2].x *= -1;
+						col[2].y *= -1;
+
+						this._resolveDynamicKinematic(col[1], col[0], col[2]);  // col[0]: kinematic, col[1]: dynamic, col[2]: vectorAtoB
 						break;
 
 					case Body.KINEMATIC:
