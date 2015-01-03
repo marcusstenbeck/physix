@@ -116,7 +116,19 @@ define([
 				if(l1 > r2 || r1 < l2 || t1 < b2 || b1 > t2) continue;
 
 				// If we've come here, there has to be a collision
-				collisions.push([bodies[i], bodies[j]]);
+
+				vecAtoB = new Vec2(bodies[i].pos.x - bodies[j].pos.x, bodies[i].pos.y - bodies[j].pos.y);
+
+				// Determine collision axis
+				if( Math.abs(vecAtoB.x) > Math.abs(vecAtoB.y) ) {
+					// horizontal collision
+					collisionVector = new Vec2(vecAtoB.x, 0);
+				} else {
+					// vertical collision
+					collisionVector = new Vec2(0, vecAtoB.y);
+				}
+
+				collisions.push( [ bodies[i], bodies[j], collisionVector ] );
 			}
 		}
 
