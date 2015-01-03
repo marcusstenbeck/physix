@@ -66,13 +66,13 @@ require([
 		window.addEventListener('resize', resize);
 
 		w = new World();
-		w.gravity.y = -0.001;
+		w.gravity.x = -0.001;
 
 		var b;
 		for(var i = 0; i < 3; i++) {
 			b = new Body();
-			b.pos.x = 0.5*canvas.width + i*20 - 20;
-			b.pos.y = 0.55*canvas.height + 0.3*i*canvas.height/2;
+			b.pos.x = 0.55*canvas.width + 0.3*i*canvas.width/2;
+			b.pos.y = 0.5*canvas.height;// + i*2;
 			w.bodies.push(b);
 		}
 
@@ -81,7 +81,6 @@ require([
 		});
 		b.pos.x = 0.5*canvas.width;
 		b.pos.y = 0.5*canvas.height;
-		b.shape.width = 100;
 		w.bodies.push(b);
 
 		update();
