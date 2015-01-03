@@ -184,60 +184,42 @@ define([
 		return this._resolveCollisions(this._detectCollisions(this.bodies));
 	};
 
-	World.prototype._resolveDynamicDynamic = function(dynamicBody1, dynamicBody2) {
-		// absolute distance
-		var dist = new Vec2(Math.abs(dynamicBody1.pos.x - dynamicBody2.pos.x), Math.abs(dynamicBody1.pos.y - dynamicBody2.pos.y));
+	World.prototype._resolveDynamicDynamic = function(dynamicBody1, dynamicBody2, vectorAtoB) {
+		var stabilityHack = 0.000000001;
 
-		if(dist.x > dist.y) {
-			/**
-			 * Moving along horizontal axis (the boxes are closest horizontally)
-			 */
-/*								
-			// find out sign
-			var sign = (dynamicBody1.pos.x - dynamicBody1.pos.x) < 0 ? -1 : 1;
-			
-			// calc relative position to move
-			var moveDiff = 0.5 * dist.x * sign / 2;
+		var vecSolve = new Vec2(
+			(0.5 * (dynamicBody1.shape.width + dynamicBody2.shape.width) - Math.abs(vectorAtoB.x) + stabilityHack) * Math.sign(vectorAtoB.x),
+			(0.5 * (dynamicBody1.shape.height + dynamicBody2.shape.height) - Math.abs(vectorAtoB.y) + stabilityHack) * Math.sign(vectorAtoB.y)
+		);
 
-			// move the bodies
-			dynamicBody1.pos.x += moveDiff;
-			dynamicBody2.pos.x -= moveDiff;
+		// Add solving vector
+		dynamicBody1.pos.x += vecSolve.x;
+		dynamicBody1.pos.y += vecSolve.y;
+		dynamicBody2.pos.x -= vecSolve.x;
+		dynamicBody2.pos.y -= vecSolve.y;
 
-			// reverse their velocities
-			dynamicBody1.vel.x *= -1;
-			dynamicBody2.vel.x *= -1;
-*/		
-		} else if(dist.x < dist.y) {
-			/**
-			 *  Moving along vertical axis (the boxes are closest vertically)
-			 */
-			
-			// find out sign
-			var sign = (dynamicBody1.pos.y - dynamicBody2.pos.y) < 0 ? -1 : 1;
-
-			// calc relative position to move
-			var moveDiff = sign*(0.5*(dynamicBody1.shape.height + dynamicBody2.shape.height) - dist.y + 0.000000001);
-
-			// move the bodies
-			dynamicBody1.pos.y += moveDiff;
-			dynamicBody2.pos.y -= moveDiff;
-
-			// reverse their velocities
-			dynamicBody1.vel.y *= -.98;
-			dynamicBody2.vel.y *= -.98;
-		} else {
-			// corner collision
-		}
+		// Reverse velocity and a some artificial energy loss
+		dynamicBody1.vel.x *= -.98;
+		dynamicBody1.vel.y *= -.98;
+		dynamicBody2.vel.x *= -.98;
+		dynamicBody2.vel.y *= -.98;
 	};
 
-	World.prototype._resolveDynamicKinematic = function(dynamicBody, kinematicBody) {
-		// absolute distance
-		var dist = new Vec2(Math.abs(dynamicBody.pos.x - kinematicBody.pos.x), Math.abs(dynamicBody.pos.y - kinematicBody.pos.y));
+	World.prototype._resolveDynamicKinematic = function(dynamicBody, kinematicBody, vectorAtoB) {
 
-		// find out sign
-		var sign = (dynamicBody.pos.y - kinematicBody.pos.y) < 0 ? -1 : 1;
-		
-		dynamicBody.pos.y += sign*(0.5*(kinematicBody.shape.height + dynamicBody.shape.height) - dist.y + 0.000000001);
+		var stabilityHack = 0.000000001;
+
+		var vecSolve = new Vec2(
+			(0.5 * (dynamicBody.shape.width + kinematicBody.shape.width) - Math.abs(vectorAtoB.x) + stabilityHack) * Math.sign(vectorAtoB.x),
+			(0.5 * (dynamicBody.shape.height + kinematicBody.shape.height) - Math.abs(vectorAtoB.y) + stabilityHack) * Math.sign(vectorAtoB.y)
+		);
+
+		// Add solving vector
+		dynamicBody.pos.x += vecSolve.x;
+		dynamicBody.pos.y += vecSolve.y;
+
+		// Reverse velocity and a some artificial energy loss
+		dynamicBody.vel.x *= -.98;
 		dynamicBody.vel.y *= -.98;
 	};
 
