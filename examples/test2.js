@@ -80,7 +80,7 @@ require([
 			type: Body.KINEMATIC
 		});
 		b.pos.x = 0.5*canvas.width;
-		b.pos.y = 0.6*canvas.height;
+		b.pos.y = 0.5*canvas.height;
 		w.bodies.push(b);
 
 		update();
