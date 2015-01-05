@@ -76,6 +76,8 @@ require([
 			w.bodies.push(b);
 		}
 
+		w.bodies[1].shape.height = 20;
+
 		b = new Body({
 			type: Body.KINEMATIC
 		});

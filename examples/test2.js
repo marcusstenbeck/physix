@@ -71,16 +71,19 @@ require([
 		var b;
 		for(var i = 0; i < 3; i++) {
 			b = new Body();
-			b.pos.x = 0.5*canvas.width;// + i*2;
+			b.pos.x = 0.5*canvas.width - i*20 + 20;
 			b.pos.y = 0.45*canvas.height - 0.3*i*canvas.height/2;
 			w.bodies.push(b);
 		}
+
+		w.bodies[1].shape.height = 20;
 
 		b = new Body({
 			type: Body.KINEMATIC
 		});
 		b.pos.x = 0.5*canvas.width;
 		b.pos.y = 0.5*canvas.height;
+		b.shape.width = 100;
 		w.bodies.push(b);
 
 		update();
