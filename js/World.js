@@ -100,36 +100,36 @@ define([
 		 */
 		var collisions = [];
 
-		var i, j, ba, bb, l1, r1, t1, b1, l2, r2, t2, b2, vecAtoB, collisionVector;
+		var i, j, ba, bb, dh1, dh2, dv1, dv2, vecAtoB, collisionVector;
 		for(i = 0; i < bodies.length; i++) {
 			ba = bodies[i].getBounds();
 
 			for(j = i+1; j < bodies.length; j++) {
 				bb = bodies[j].getBounds();
 
-				l1 = ba.left;
-				r1 = ba.right;
-				t1 = ba.top;
-				b1 = ba.bottom;
+				dh1 = ba.right - bb.left;
+				dh2 = bb.right - ba.left;
+				dv1 = ba.top - bb.bottom;
+				dv2 = bb.top - ba.bottom;
 
-				l2 = bb.left;
-				r2 = bb.right;
-				t2 = bb.top;
-				b2 = bb.bottom;
+				if(dh1 < 0 || dh2 < 0 || dv1 < 0 || dv2 < 0) continue;  // no collision
+				
 
-				if(l1 > r2 || r1 < l2 || t1 < b2 || b1 > t2) continue;
+				// ----- If we've come here, there has to be a collision ------ //
 
-				// If we've come here, there has to be a collision
 
-				vecAtoB = new Vec2(bodies[i].pos.x - bodies[j].pos.x, bodies[i].pos.y - bodies[j].pos.y);
+				var intersectionDepth = {
+					x: (dh1 < dh2 ? dh1 : dh2),
+					y: (dv1 < dv2 ? dv1 : dv2)
+				}
 
 				// Determine collision axis
-				if( Math.abs(vecAtoB.x) > Math.abs(vecAtoB.y) ) {
+				if(intersectionDepth.x < intersectionDepth.y) {
 					// horizontal collision
-					collisionVector = new Vec2(vecAtoB.x, 0);
+					collisionVector = new Vec2(bodies[i].pos.x - bodies[j].pos.x, 0);
 				} else {
 					// vertical collision
-					collisionVector = new Vec2(0, vecAtoB.y);
+					collisionVector = new Vec2(0, bodies[i].pos.y - bodies[j].pos.y);
 				}
 
 				collisions.push( [ bodies[i], bodies[j], collisionVector ] );
