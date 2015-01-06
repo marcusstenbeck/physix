@@ -1,6 +1,6 @@
 requirejs.config({
     //By default load any module IDs from ../js
-    baseUrl: '../js',
+    baseUrl: '../src',
     //except, if the module ID starts with "app",
     //load it from the ./examples directory. paths
     //config is relative to the baseUrl, and
