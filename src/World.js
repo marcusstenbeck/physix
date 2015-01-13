@@ -234,8 +234,21 @@ define([
 		dynamicBody.pos.y += vecSolve.y;
 
 		// Reverse velocity and a some artificial energy loss
-		if(vectorAtoB.x !== 0) dynamicBody.vel.x *= -0.98;
-		if(vectorAtoB.y !== 0) dynamicBody.vel.y *= -0.98;
+		if(vectorAtoB.x !== 0) {
+			if(Math.sign(vectorAtoB.x) === Math.sign(kinematicBody.vel.x)) {
+				dynamicBody.vel.x = kinematicBody.vel.x;
+			} else {
+				dynamicBody.vel.x *= -0.98;
+			}
+		}
+
+		if(vectorAtoB.y !== 0) {
+			if(Math.sign(vectorAtoB.y) === Math.sign(kinematicBody.vel.y)) {
+				dynamicBody.vel.y = kinematicBody.vel.y;
+			} else {
+				dynamicBody.vel.y *= -0.98;
+			}
+		}
 	};
 
 	World.prototype._resolveKinematicKinematic = function(body1, body2, vectorAtoB) {
