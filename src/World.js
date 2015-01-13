@@ -18,7 +18,11 @@ define([
 		this.bodies = [];
 		this.forceFields = [];
 		this.gravity = new Vec2();
+
+		this.iterationCount = 0;
 	}
+
+	World.prototype.MAX_ITERATIONS = 10;
 
 	World.prototype.update = function(timestep) {
 		if(!timestep) {
@@ -47,7 +51,8 @@ define([
 		/**
 		 *  Resolve collisions
 		 */
-		this._resolveCollisions(collisions);
+		this.iterationCount = 0;
+		this._resolveCollisions(collisions, timestep);
 	};
 
 	World.prototype._integrate = function(timestep) {
@@ -139,7 +144,15 @@ define([
 		return collisions;
 	};
 
-	World.prototype._resolveCollisions = function(collisions) {
+	World.prototype._resolveCollisions = function(collisions, timestep) {
+		if(this.iterationCount > this.MAX_ITERATIONS) {
+			// Bail out!
+			throw 'Too many iterations: ' +  this.iterationCount;
+			return;
+		} else {
+			this.iterationCount += 1;
+		}
+
 		if(collisions.length == 0) return;
 		
 		var col;
