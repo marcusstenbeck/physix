@@ -5,6 +5,7 @@ define([
 	Vec2,
 	Body
 ) {
+	'use strict';
 
 	/**
 	 *  Update positions
@@ -52,7 +53,7 @@ define([
 		 *  Resolve collisions
 		 */
 		this.iterationCount = 0;
-		this._resolveCollisions(collisions, timestep);
+		this._resolveCollisions(collisions);
 	};
 
 	World.prototype._integrate = function(timestep) {
@@ -105,7 +106,7 @@ define([
 		 */
 		var collisions = [];
 
-		var i, j, ba, bb, dh1, dh2, dv1, dv2, vecAtoB, collisionVector;
+		var i, j, ba, bb, dh1, dh2, dv1, dv2, collisionVector;
 		for(i = 0; i < bodies.length; i++) {
 			ba = bodies[i].getBounds();
 
@@ -126,7 +127,7 @@ define([
 				var intersectionDepth = {
 					x: (dh1 < dh2 ? dh1 : dh2),
 					y: (dv1 < dv2 ? dv1 : dv2)
-				}
+				};
 
 				// Determine collision axis
 				if(intersectionDepth.x < intersectionDepth.y) {
@@ -144,20 +145,21 @@ define([
 		return collisions;
 	};
 
-	World.prototype._resolveCollisions = function(collisions, timestep) {
+	World.prototype._resolveCollisions = function(collisions) {
 		if(this.iterationCount > this.MAX_ITERATIONS) {
 			// Bail out!
 			throw 'Too many iterations: ' +  this.iterationCount;
-			return;
 		} else {
 			this.iterationCount += 1;
 		}
 
-		if(collisions.length == 0) return;
+		if(collisions.length === 0) return;
 		
 		var col;
 
-		while(col = collisions.shift()) {
+		while(collisions.length > 0) {
+			col = collisions.shift();
+
 			// Resolve collision
 			
 			if(col[0].type == Body.DYNAMIC) {
@@ -178,8 +180,8 @@ define([
 					case Body.DYNAMIC:
 						// kinematic - dynamic
 
-						// Right now the collisionVector is pointing in the
-						// opposite direction of what will be expected later.
+						// Right now the collisionVector is pointing in the opposite
+						// direction of what _resolveDynamicKinematic() expects.
 						// Reverse the direction of the vector
 						col[2].x *= -1;
 						col[2].y *= -1;
@@ -189,7 +191,7 @@ define([
 
 					case Body.KINEMATIC:
 						// kinematic - kinematic
-						this._resolveKinematicKinematic(col[0], col[1], col[2], timestep);
+						this._resolveKinematicKinematic(col[0], col[1], col[2]);
 						break;
 				}
 			}
@@ -212,10 +214,10 @@ define([
 		dynamicBody2.pos.y -= vecSolve.y;
 
 		// Reverse velocity and a some artificial energy loss
-		if(vectorAtoB.x != 0) dynamicBody1.vel.x *= -.98;
-		if(vectorAtoB.y != 0) dynamicBody1.vel.y *= -.98;
-		if(vectorAtoB.x != 0) dynamicBody2.vel.x *= -.98;
-		if(vectorAtoB.y != 0) dynamicBody2.vel.y *= -.98;
+		if(vectorAtoB.x !== 0) dynamicBody1.vel.x *= -0.98;
+		if(vectorAtoB.y !== 0) dynamicBody1.vel.y *= -0.98;
+		if(vectorAtoB.x !== 0) dynamicBody2.vel.x *= -0.98;
+		if(vectorAtoB.y !== 0) dynamicBody2.vel.y *= -0.98;
 	};
 
 	World.prototype._resolveDynamicKinematic = function(dynamicBody, kinematicBody, vectorAtoB) {
@@ -232,11 +234,11 @@ define([
 		dynamicBody.pos.y += vecSolve.y;
 
 		// Reverse velocity and a some artificial energy loss
-		if(vectorAtoB.x != 0) dynamicBody.vel.x *= -.98;
-		if(vectorAtoB.y != 0) dynamicBody.vel.y *= -.98;
+		if(vectorAtoB.x !== 0) dynamicBody.vel.x *= -0.98;
+		if(vectorAtoB.y !== 0) dynamicBody.vel.y *= -0.98;
 	};
 
-	World.prototype._resolveKinematicKinematic = function(body1, body2, vectorAtoB, timestep) {
+	World.prototype._resolveKinematicKinematic = function(body1, body2, vectorAtoB) {
 
 		// TODO: This shows up a lot, DRY
 		var stabilityHack = 0.000000001;
