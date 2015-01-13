@@ -117,7 +117,7 @@ define([
 				dv1 = ba.top - bb.bottom;
 				dv2 = bb.top - ba.bottom;
 
-				if(dh1 < 0 || dh2 < 0 || dv1 < 0 || dv2 < 0) continue;  // no collision
+				if(dh1 <= 0 || dh2 <= 0 || dv1 <= 0 || dv2 <= 0) continue;  // no collision
 				
 
 				// ----- If we've come here, there has to be a collision ------ //
