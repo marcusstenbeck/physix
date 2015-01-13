@@ -189,7 +189,7 @@ define([
 
 					case Body.KINEMATIC:
 						// kinematic - kinematic
-						console.log('lol, kinematic kinematic');
+						this._resolveKinematicKinematic(col[0], col[1], col[2], timestep);
 						break;
 				}
 			}
@@ -234,6 +234,38 @@ define([
 		// Reverse velocity and a some artificial energy loss
 		if(vectorAtoB.x != 0) dynamicBody.vel.x *= -.98;
 		if(vectorAtoB.y != 0) dynamicBody.vel.y *= -.98;
+	};
+
+	World.prototype._resolveKinematicKinematic = function(body1, body2, vectorAtoB, timestep) {
+
+		// TODO: This shows up a lot, DRY
+		var stabilityHack = 0.000000001;
+
+		// TODO: This shows up a lot, DRY
+		var vecSolve = new Vec2(
+			(0.5 * (body1.shape.width + body2.shape.width) - Math.abs(vectorAtoB.x) + stabilityHack) * Math.sign(vectorAtoB.x),
+			(0.5 * (body1.shape.height + body2.shape.height) - Math.abs(vectorAtoB.y) + stabilityHack) * Math.sign(vectorAtoB.y)
+		);
+
+		var ratio;
+		if(vectorAtoB.x !== 0 && vectorAtoB.y !== 0) {
+			// TODO: Diagonal collision
+		} else if(vectorAtoB.x === 0) {
+			// TODO: Vertical collision
+		} else if(vectorAtoB.y === 0) {
+			// Horizontal collision
+			if(body1.vel.x === 0) ratio = 0;
+			else if(body2.vel.x === 0) ratio = 1;
+			else {
+				ratio = Math.abs(body1.vel.x) / (Math.abs(body1.vel.x) + Math.abs(body2.vel.x));
+			}
+
+			// "Reverse time"
+			body1.pos.x += vecSolve.x * ratio;
+			body1.pos.y += vecSolve.y * ratio;
+			body2.pos.x -= vecSolve.x * (1 - ratio);
+			body2.pos.y -= vecSolve.y * (1 - ratio);
+		}
 	};
 
 	return World;
