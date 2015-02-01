@@ -3,6 +3,8 @@ define([
 ], function(
 	Vec2
 ) {
+	'use strict';
+
 	function Body(params) {
 		if(!params) params = {};
 

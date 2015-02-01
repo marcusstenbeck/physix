@@ -1,6 +1,8 @@
 define([
 ], function(
 ) {
+	'use strict';
+
 	function Vec2(x,y) {
 		this.x = isNaN(x) ? 0 : x;
 		this.y = isNaN(y) ? 0 : y;

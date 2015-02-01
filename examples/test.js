@@ -1,90 +1,97 @@
 requirejs.config({
-    //By default load any module IDs from ../js
-    baseUrl: '../js',
-    //except, if the module ID starts with "app",
-    //load it from the ./examples directory. paths
-    //config is relative to the baseUrl, and
-    //never includes a ".js" extension since
-    //the paths config could be for a directory.
-    paths: {
-        examples: '../examples'
-    }
+    // By default load any modules from `../src`
+    baseUrl: '../src'
 });
 require([
-	'World',
-	'Body',
-	'Vec2'
+    'World',
+    'Body'
 ], function(
-	World,
-	Body,
-	Vec2
+    World,
+    Body
 ) {
-	var w;
+    'use strict';
 
-	// TODO: Move this someplace better
-	window.requestAnimFrame =
-	    window.requestAnimationFrame ||
-	    window.webkitRequestAnimationFrame ||
-	    window.mozRequestAnimationFrame ||
-	    window.oRequestAnimationFrame ||
-	    window.msRequestAnimationFrame ||
-	    function(callback) {
-	        window.setTimeout(callback, 1000 / 60);
-	};
+    var worlds = [];  // hold physics worlds
 
-	var canvas = document.getElementById('c');
-	var ctx = canvas.getContext('2d');
+    // TODO: Move this someplace better
+    var requestAnimFrame =
+        window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+            window.setTimeout(callback, 1000 / 60);
+    };
+    window.requestAnimFrame = requestAnimFrame;
 
-	function resize() {
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
-	}
+    var canvas = document.getElementById('c');
+    var ctx = canvas.getContext('2d');
 
-	var dt = 0, lastTime = 0;
-	function update(time) {
-		requestAnimFrame(update);
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
 
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var dt = 0, lastTime = 0;
+    function update(time) {
+        requestAnimFrame(update);
 
-		dt = Math.min(60, time - lastTime);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		w.update(dt);
-		var bodies = w.bodies;
-		for(var i = 0; i < bodies.length; i++) {
-			var bound = bodies[i].getBounds();
-			ctx.beginPath();
-			ctx.strokeStyle = "magenta";
-			ctx.strokeRect(bound.left, canvas.height - bound.top, bodies[i].shape.width, bodies[i].shape.height);
-			ctx.restore();
-		}
+        dt = Math.min(60, time - lastTime);
 
-		lastTime = time;
-	}
+        worlds.forEach(function(world) {
+            world.update(dt);
 
-	function init() {
-		resize();
-		window.addEventListener('resize', resize);
+            var bodies = world.bodies;
+            for(var i = 0; i < bodies.length; i++) {
+                var bound = bodies[i].getBounds();
+                ctx.beginPath();
+                ctx.strokeStyle = 'magenta';
+                ctx.strokeRect(bound.left, canvas.height - bound.top, bodies[i].shape.width, bodies[i].shape.height);
+                ctx.restore();
+            }
+        });
 
-		w = new World();
-		w.gravity.y = -0.001;
+        lastTime = time;
+    }
 
-		var b;
-		for(var i = 0; i < 3; i++) {
-			b = new Body();
-			b.pos.x = 0.5*canvas.width;// + i*2;
-			b.pos.y = 0.45*canvas.height + 0.3*i*canvas.height/2;
-			w.bodies.push(b);
-		}
+    function init() {
+        resize();
+        window.addEventListener('resize', resize);
 
-		b = new Body({
-			type: Body.KINEMATIC
-		});
-		b.pos.x = 0.5*canvas.width;
-		b.pos.y = 0.4*canvas.height;
-		w.bodies.push(b);
+        var w;
 
-		update();
-	}
+        // ---------------------------------
 
-	init();
+        w = new World();
+        w.gravity.y = -0.001;
+
+        var b;
+        for(var i = 0; i < 3; i++) {
+            b = new Body();
+            b.pos.x = 0.5*canvas.width + i*20 - 20;
+            b.pos.y = 0.55*canvas.height + 0.3*i*canvas.height/2;
+            w.bodies.push(b);
+        }
+
+        w.bodies[1].shape.height = 20;
+
+        b = new Body({
+            type: Body.KINEMATIC
+        });
+        b.pos.x = 0.5*canvas.width;
+        b.pos.y = 0.5*canvas.height;
+        b.shape.width = 100;
+        w.bodies.push(b);
+
+        worlds.push(w);
+
+        // ----------------------------------
+
+        update();
+    }
+
+    init();
 });
