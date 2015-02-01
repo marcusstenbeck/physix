@@ -1,6 +1,6 @@
 requirejs.config({
-    // By default load any modules from `../src`
-    baseUrl: '../src'
+    // By default load any modules from `./src`
+    baseUrl: './src'
 });
 require([
     'World',
