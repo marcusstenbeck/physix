@@ -1,4 +1,4 @@
-physix
-======
+physix project site
+===================
 
-Simple physics engine. Mainly used in my game engine [plix](https://github.com/marcusstenbeck/plix).
+Source for project website at http://marcusstenbeck.com/physix/.
