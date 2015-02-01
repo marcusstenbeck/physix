@@ -12,17 +12,17 @@ requirejs.config({
 });
 require([
     'World',
-    'Body',
-    'Vec2'
+    'Body'
 ], function(
     World,
-    Body,
-    Vec2
+    Body
 ) {
+    'use strict';
+
     var worlds = [];  // hold physics worlds
 
     // TODO: Move this someplace better
-    window.requestAnimFrame =
+    var requestAnimFrame =
         window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
@@ -31,6 +31,7 @@ require([
         function(callback) {
             window.setTimeout(callback, 1000 / 60);
     };
+    window.requestAnimFrame = requestAnimFrame;
 
     var canvas = document.getElementById('c');
     var ctx = canvas.getContext('2d');
@@ -55,7 +56,7 @@ require([
             for(var i = 0; i < bodies.length; i++) {
                 var bound = bodies[i].getBounds();
                 ctx.beginPath();
-                ctx.strokeStyle = "magenta";
+                ctx.strokeStyle = 'magenta';
                 ctx.strokeRect(bound.left, canvas.height - bound.top, bodies[i].shape.width, bodies[i].shape.height);
                 ctx.restore();
             }
