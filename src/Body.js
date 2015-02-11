@@ -22,6 +22,8 @@ define([
 			width: 10,
 			height: 10
 		};
+
+		this.tag = params.tag || '';
 	}
 
 	Body.prototype.getBounds = function() {
@@ -37,6 +39,8 @@ define([
 		this.accumulatedForce.x += vecForce.x;
 		this.accumulatedForce.y += vecForce.y;
 	};
+
+	Body.prototype.onCollision = function(otherBody) { /*  override this  */ };
 
 	Body.DYNAMIC = 'dynamic';
 	Body.KINEMATIC = 'kinematic';
