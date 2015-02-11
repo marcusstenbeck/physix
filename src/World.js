@@ -139,6 +139,10 @@ define([
 				}
 
 				collisions.push( [ bodies[i], bodies[j], collisionVector ] );
+
+				// Run onCollision callback
+				bodies[i].onCollision(bodies[j]);
+				bodies[j].onCollision(bodies[i]);
 			}
 		}
 
