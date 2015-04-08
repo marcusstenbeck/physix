@@ -21,6 +21,12 @@ define([
 		this.gravity = new Vec2();
 
 		this.iterationCount = 0;
+
+		this.callbackQueue = {
+			aBodies: [],
+			bBodies: [],
+			collisionVectors: []
+		};
 	}
 
 	World.prototype.MAX_ITERATIONS = 10;
@@ -36,6 +42,8 @@ define([
 			var step = timeleft < dt ? timeleft : dt;
 			this._updateFixedTimeStep(step);
 		}
+
+		this.runCallbacks();
 	};
 
 	World.prototype._updateFixedTimeStep = function(timestep) {
@@ -138,11 +146,9 @@ define([
 					collisionVector = new Vec2(0, bodies[i].pos.y - bodies[j].pos.y);
 				}
 
-				collisions.push( [ bodies[i], bodies[j], collisionVector ] );
+		 		collisions.push([ bodies[i], bodies[j], collisionVector ]);
 
-				// Run onCollision callback
-				bodies[i].onCollision(bodies[j]);
-				bodies[j].onCollision(bodies[i]);
+				this.queueCallback(bodies[i], bodies[j], collisionVector);
 			}
 		}
 
@@ -285,6 +291,33 @@ define([
 			body2.pos.x -= vecSolve.x * (1 - ratio);
 			body2.pos.y -= vecSolve.y * (1 - ratio);
 		}
+	};
+
+	World.prototype.queueCallback = function(bodyA, bodyB, collisionVector) {
+		var iBodyA = this.callbackQueue.aBodies.indexOf(bodyA);
+		
+		if(iBodyA > -1 && this.callbackQueue.bBodies[iBodyA] === bodyB) {
+			return;
+		}
+
+		this.callbackQueue.aBodies.push(bodyA);		
+		this.callbackQueue.bBodies.push(bodyB);		
+		this.callbackQueue.collisionVectors.push(collisionVector);		
+	};
+
+	World.prototype.runCallbacks = function(bodyA, bodyB, collisionVector) {
+		var _len = this.callbackQueue.aBodies.length;
+
+		if(_len === 0) return;
+
+		for(var i = 0; i < this.callbackQueue.aBodies.length; i++) {
+			this.callbackQueue.aBodies[i].onCollision(this.callbackQueue.bBodies[i], this.callbackQueue.collisionVectors[i]);
+			this.callbackQueue.bBodies[i].onCollision(this.callbackQueue.aBodies[i], this.callbackQueue.collisionVectors[i]);
+		}
+
+		this.callbackQueue.aBodies = [];
+		this.callbackQueue.bBodies = [];
+		this.callbackQueue.collisionVectors = [];
 	};
 
 	return World;
