@@ -156,14 +156,14 @@ define([
 	};
 
 	World.prototype._resolveCollisions = function(collisions) {
+		if(collisions.length === 0) return;
+
 		if(this.iterationCount > this.MAX_ITERATIONS) {
 			// Bail out!
 			throw 'Too many iterations: ' +  this.iterationCount;
-		} else {
-			this.iterationCount += 1;
 		}
-
-		if(collisions.length === 0) return;
+		
+		this.iterationCount += 1;
 		
 		var col;
 
