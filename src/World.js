@@ -146,9 +146,14 @@ define([
 					collisionVector = new Vec2(0, bodies[i].pos.y - bodies[j].pos.y);
 				}
 
-		 		collisions.push([ bodies[i], bodies[j], collisionVector ]);
-
 				this.queueCallback(bodies[i], bodies[j], collisionVector);
+				
+				if(!!bodies[i].isSensor || !!bodies[j].isSensor) {
+					// one of the bodies is a sensor, so there's no need to do anything else
+					continue;
+				}
+
+				collisions.push([ bodies[i], bodies[j], collisionVector ]);
 			}
 		}
 

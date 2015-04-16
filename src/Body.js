@@ -13,6 +13,7 @@ define([
 		this.vel = new Vec2();
 		this.acc = new Vec2();
 		this.accumulatedForce = new Vec2();
+		this.isSensor = !!params.isSensor;
 
 		this.type = params.type || Body.DYNAMIC;
 
