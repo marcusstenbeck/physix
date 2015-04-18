@@ -85,8 +85,8 @@ define([
 			// Calculate acceleration
 			switch(body.type) {
 				case Body.DYNAMIC:
-					body.acc.x = (this.gravity.x + body.accumulatedForce.x) / body.mass;
-					body.acc.y = (this.gravity.y + body.accumulatedForce.y) / body.mass;
+					body.acc.x = this.gravity.x + (body.accumulatedForce.x / body.mass);
+					body.acc.y = this.gravity.y + (body.accumulatedForce.y / body.mass);
 					break;
 				case Body.KINEMATIC:
 					body.acc.x = body.accumulatedForce.x / body.mass;
