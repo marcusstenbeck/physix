@@ -38,8 +38,9 @@ define([
 		}
 
 		// Make sure timestep never exceeds 10 ms
-		for(var dt = 10, timeleft = timestep; timeleft > 0; timeleft -= dt) {
-			var step = timeleft < dt ? timeleft : dt;
+		var dt, timeleft, step;
+		for(dt = 10, timeleft = timestep; timeleft > 0; timeleft -= dt) {
+			step = timeleft < dt ? timeleft : dt;
 			this._updateFixedTimeStep(step);
 		}
 
@@ -67,7 +68,8 @@ define([
 	World.prototype._integrate = function(timestep) {
 		var body;
 
-		for(var i = 0; i < this.bodies.length; i++) {
+		var i, _len = this.bodies.length;
+		for(i = 0; i < _len; i++) {
 			body = this.bodies[i];
 
 			/* TODO: Remove this?
@@ -114,11 +116,11 @@ define([
 		 */
 		var collisions = [];
 
-		var i, j, ba, bb, dh1, dh2, dv1, dv2, collisionVector;
-		for(i = 0; i < bodies.length; i++) {
+		var i, j, ba, bb, dh1, dh2, dv1, dv2, collisionVector, intersectionDepth, _len = bodies.length;
+		for(i = 0; i < (_len - 1); i++) {
 			ba = bodies[i].getBounds();
 
-			for(j = i+1; j < bodies.length; j++) {
+			for(j = i+1; j < _len; j++) {
 
 				if(!(bodies[i].layer & bodies[j].layer)) {
 					// The bodies do not share any layer
@@ -138,7 +140,7 @@ define([
 				// ----- If we've come here, there has to be a collision ------ //
 
 
-				var intersectionDepth = {
+				intersectionDepth = {
 					x: (dh1 < dh2 ? dh1 : dh2),
 					y: (dv1 < dv2 ? dv1 : dv2)
 				};
@@ -177,7 +179,6 @@ define([
 		this.iterationCount += 1;
 		
 		var col;
-
 		while(collisions.length > 0) {
 			col = collisions.shift();
 
@@ -216,6 +217,9 @@ define([
 						break;
 				}
 			}
+			delete col[0];
+			delete col[1];
+			delete col[2];
 		}
 		return this._resolveCollisions(this._detectCollisions(this.bodies));
 	};
@@ -223,18 +227,16 @@ define([
 	World.prototype._resolveDynamicDynamic = function(dynamicBody1, dynamicBody2, vectorAtoB) {
 		var stabilityHack = 0.000000001;
 
-		var vecSolve = new Vec2(
-			(0.5 * (dynamicBody1.shape.width + dynamicBody2.shape.width) - Math.abs(vectorAtoB.x) + stabilityHack) * Math.sign(vectorAtoB.x),
-			(0.5 * (dynamicBody1.shape.height + dynamicBody2.shape.height) - Math.abs(vectorAtoB.y) + stabilityHack) * Math.sign(vectorAtoB.y)
-		);
+		var vecSolve = {
+			x: (0.5 * (dynamicBody1.shape.width + dynamicBody2.shape.width) - Math.abs(vectorAtoB.x) + stabilityHack) * Math.sign(vectorAtoB.x),
+			y: (0.5 * (dynamicBody1.shape.height + dynamicBody2.shape.height) - Math.abs(vectorAtoB.y) + stabilityHack) * Math.sign(vectorAtoB.y)
+		};
 
 		// Add solving vector
 		dynamicBody1.pos.x += vecSolve.x;
 		dynamicBody1.pos.y += vecSolve.y;
 		dynamicBody2.pos.x -= vecSolve.x;
 		dynamicBody2.pos.y -= vecSolve.y;
-
-		var fakeEnergyLoss = 0.98;
 
 		var newVel1 = {
 			x: (dynamicBody1.vel.x * (dynamicBody1.mass - dynamicBody2.mass) + (2 * dynamicBody2.mass * dynamicBody2.vel.x)) / (dynamicBody1.mass + dynamicBody2.mass),
@@ -246,18 +248,20 @@ define([
 			y: (dynamicBody2.vel.y * (dynamicBody1.mass - dynamicBody2.mass) + (2 * dynamicBody1.mass * dynamicBody1.vel.y)) / (dynamicBody1.mass + dynamicBody2.mass)
 		};
 
-		dynamicBody1.vel = new Vec2(newVel1.x, newVel1.y);
-		dynamicBody2.vel = new Vec2(newVel2.x, newVel2.y);
+		dynamicBody1.vel.x = newVel1.x;
+		dynamicBody1.vel.y = newVel1.y;
+		dynamicBody2.vel.x = newVel2.x;
+		dynamicBody2.vel.y = newVel2.y;
 	};
 
 	World.prototype._resolveDynamicKinematic = function(dynamicBody, kinematicBody, vectorAtoB) {
 
 		var stabilityHack = 0.000000001;
 
-		var vecSolve = new Vec2(
-			(0.5 * (dynamicBody.shape.width + kinematicBody.shape.width) - Math.abs(vectorAtoB.x) + stabilityHack) * Math.sign(vectorAtoB.x),
-			(0.5 * (dynamicBody.shape.height + kinematicBody.shape.height) - Math.abs(vectorAtoB.y) + stabilityHack) * Math.sign(vectorAtoB.y)
-		);
+		var vecSolve = {
+			x: (0.5 * (dynamicBody.shape.width + kinematicBody.shape.width) - Math.abs(vectorAtoB.x) + stabilityHack) * Math.sign(vectorAtoB.x),
+			y: (0.5 * (dynamicBody.shape.height + kinematicBody.shape.height) - Math.abs(vectorAtoB.y) + stabilityHack) * Math.sign(vectorAtoB.y)
+		};
 
 		// Add solving vector
 		dynamicBody.pos.x += vecSolve.x;
@@ -330,14 +334,15 @@ define([
 
 		if(_len === 0) return;
 
-		for(var i = 0; i < this.callbackQueue.aBodies.length; i++) {
+		var i;
+		for(i = 0; i < _len; i++) {
 			this.callbackQueue.aBodies[i].onCollision(this.callbackQueue.bBodies[i], this.callbackQueue.collisionVectors[i]);
 			this.callbackQueue.bBodies[i].onCollision(this.callbackQueue.aBodies[i], this.callbackQueue.collisionVectors[i]);
 		}
 
-		this.callbackQueue.aBodies = [];
-		this.callbackQueue.bBodies = [];
-		this.callbackQueue.collisionVectors = [];
+		this.callbackQueue.aBodies.length = 0;
+		this.callbackQueue.bBodies.length = 0;
+		this.callbackQueue.collisionVectors.length = 0;
 	};
 
 	return World;
