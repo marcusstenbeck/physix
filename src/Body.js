@@ -14,6 +14,7 @@ define([
 		this.acc = new Vec2();
 		this.accumulatedForce = new Vec2();
 		this.isSensor = !!params.isSensor;
+		this.layer = typeof params.layer === 'number' ? params.layer : 0b01;
 
 		this.type = params.type || Body.DYNAMIC;
 

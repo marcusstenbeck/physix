@@ -119,6 +119,12 @@ define([
 			ba = bodies[i].getBounds();
 
 			for(j = i+1; j < bodies.length; j++) {
+
+				if(!(bodies[i].layer & bodies[j].layer)) {
+					// The bodies do not share any layer
+					continue;
+				}
+
 				bb = bodies[j].getBounds();
 
 				dh1 = ba.right - bb.left;
