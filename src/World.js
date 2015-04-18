@@ -234,11 +234,20 @@ define([
 		dynamicBody2.pos.x -= vecSolve.x;
 		dynamicBody2.pos.y -= vecSolve.y;
 
-		// Reverse velocity and a some artificial energy loss
-		if(vectorAtoB.x !== 0) dynamicBody1.vel.x *= -0.98;
-		if(vectorAtoB.y !== 0) dynamicBody1.vel.y *= -0.98;
-		if(vectorAtoB.x !== 0) dynamicBody2.vel.x *= -0.98;
-		if(vectorAtoB.y !== 0) dynamicBody2.vel.y *= -0.98;
+		var fakeEnergyLoss = 0.98;
+
+		var newVel1 = {
+			x: (dynamicBody1.vel.x * (dynamicBody1.mass - dynamicBody2.mass) + (2 * dynamicBody2.mass * dynamicBody2.vel.x)) / (dynamicBody1.mass + dynamicBody2.mass),
+			y: (dynamicBody1.vel.y * (dynamicBody1.mass - dynamicBody2.mass) + (2 * dynamicBody2.mass * dynamicBody2.vel.y)) / (dynamicBody1.mass + dynamicBody2.mass)
+		};
+
+		var newVel2 = {
+			x: (dynamicBody2.vel.x * (dynamicBody1.mass - dynamicBody2.mass) + (2 * dynamicBody1.mass * dynamicBody1.vel.x)) / (dynamicBody1.mass + dynamicBody2.mass),
+			y: (dynamicBody2.vel.y * (dynamicBody1.mass - dynamicBody2.mass) + (2 * dynamicBody1.mass * dynamicBody1.vel.y)) / (dynamicBody1.mass + dynamicBody2.mass)
+		};
+
+		dynamicBody1.vel = new Vec2(newVel1.x, newVel1.y);
+		dynamicBody2.vel = new Vec2(newVel2.x, newVel2.y);
 	};
 
 	World.prototype._resolveDynamicKinematic = function(dynamicBody, kinematicBody, vectorAtoB) {
