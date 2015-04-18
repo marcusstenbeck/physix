@@ -318,15 +318,17 @@ define([
 	};
 
 	World.prototype.queueCallback = function(bodyA, bodyB, collisionVector) {
-		var iBodyA = this.callbackQueue.aBodies.indexOf(bodyA);
-		
-		if(iBodyA > -1 && this.callbackQueue.bBodies[iBodyA] === bodyB) {
-			return;
+
+		for(var i = 0; i < this.callbackQueue.aBodies.length; i++) {
+			if(this.callbackQueue.aBodies[i] === bodyA && this.callbackQueue.bBodies[i] === bodyB) {
+				// pair already exists
+				return;
+			}
 		}
 
-		this.callbackQueue.aBodies.push(bodyA);		
-		this.callbackQueue.bBodies.push(bodyB);		
-		this.callbackQueue.collisionVectors.push(collisionVector);		
+		this.callbackQueue.aBodies.push(bodyA);
+		this.callbackQueue.bBodies.push(bodyB);
+		this.callbackQueue.collisionVectors.push(collisionVector);
 	};
 
 	World.prototype.runCallbacks = function(bodyA, bodyB, collisionVector) {
